@@ -26,15 +26,21 @@ int main() {
             mysql_query_excuter("create database if not exists accounts",NULL);
             mysql_query_excuter(
                 "CREATE TABLE IF NOT EXISTS account_information ("
-                "account_no INT PRIMARY KEY,"
-                "balance DECIMAL(30, 2) NOT NULL DEFAULT 0,"
+                "account_no BIGINT PRIMARY KEY AUTO_INCREMENT,"
                 "name VARCHAR(100) NOT NULL,"
-                "age int NOT NULL,"
+                "age INT NOT NULL,"
                 "gender ENUM('Male', 'Female', 'Other') NOT NULL,"
                 "date_of_birth DATE NOT NULL,"
-                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)","accounts"
-            );
-            
+                "phone VARCHAR(15),"
+                "email VARCHAR(100),"
+                "balance DECIMAL(30,2) NOT NULL DEFAULT 0,"
+                "account_type ENUM('Savings','Current','Salary') DEFAULT 'Savings',"
+                "password_hash VARCHAR(255) NOT NULL,"
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                ")",
+                "accounts");
+
             // printf("new account\n");
             break;
         
@@ -78,14 +84,14 @@ void mysql_query_excuter(const char *query ,const char *databases ) {
     }
 
     // Execute query
-//     if (mysql_query(conn, query)) {
-//         printf("Query execution failed: %s\n", mysql_error(conn));
-//         mysql_close(conn);
-//         return;
-//     }
+    if (mysql_query(conn, query)) {
+        printf("Query execution failed: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        return;
+    }
 
-//     mysql_close(conn);
-// }
+    mysql_close(conn);
+}
 
 // void account_creation(){
     
