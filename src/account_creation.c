@@ -87,15 +87,15 @@ void mysql_query_excuter(const char *query ,const char *databases ) {
     mysql_close(conn);
 }
 
-void account_creation(){
+// void account_creation(){
     
-}
+// }
 
 
-struct AccountInformation{
-    unsigned int accountNumber;
-    unsigned int age;
-    unsigned int dob;
-    double balance;
-    char name[100];
-};
+// struct AccountInformation{
+//     unsigned int accountNumber;
+//     unsigned int age;
+//     unsigned int dob;
+//     double balance;
+//     char name[100];
+// };
