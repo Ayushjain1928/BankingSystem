@@ -19,3 +19,4 @@ mysql_query_excuter("create database if not exists accounts",NULL);
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                 ")",
                 "accounts");
+                
