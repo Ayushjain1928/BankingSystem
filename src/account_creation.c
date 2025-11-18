@@ -3,6 +3,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <string.h>
 
 #define PASSWD "Mydatabases@123"
 #define USER "root"
@@ -71,8 +72,22 @@ int user_menu()
     scanf("%u", &acc.age);
     printf("Write down your Date of Birth(YYYY-MM-DD).");
     scanf("%10s", &acc.date_of_birth);
-    printf("Write down your Gender(Male=0,Female=1,Other=Any Number).");
-    scanf("%d", (int *)&acc.gender);
+    printf("Write down your Gender(Male,Female,Other).");
+    char temp[10];
+    scanf("%s", &temp);
+    char temp1[10] = toupper(temp);
+    if (strcmp(temp1,"MALE") == 0)
+    {
+        strcpy(acc.gender,"MALE");
+    }
+    else if (strcmp(temp1,"FEMALE") == 0)
+    {
+        strcpy(acc.gender,"FEMALE");
+    }
+    else
+    {
+        strcpy(acc.gender,"OTHER");
+    }
     
    
     printf("Write down your Aadhar Number.");
@@ -83,8 +98,17 @@ int user_menu()
     scanf("%s", &acc.phone);
     printf("Write down your age.");
     scanf("%s", &acc.email);
-    printf("Write down your Type of Account(Savings=0,Current=1).");
-    scanf("%s", &acc.account_type);
+    printf("Write down your Type of Account(Savings,Current).");
+    char temp2[10];
+    scanf("%s", &temp2);
+    char temp3[10] = isupper(temp2);
+    if (strcmp(temp2,"SAVINGS") == 0)
+    {
+        strcpy(acc.gender,"SAVINGS");
+    }
+    else
+    {
+        strcpy(acc.gender,"CURRENT");
     
 
     char query[1024];
