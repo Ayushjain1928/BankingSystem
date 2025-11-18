@@ -3,17 +3,20 @@
 
 #define PASSWD "Mydatabases@123"
 #define USER "root"
-typedef enum {
-    MALE=0,
-    FEMALE=1,
-    OTHER=3
+typedef enum
+{
+    MALE = 0,
+    FEMALE = 1,
+    OTHER = 3
 } Gender;
-typedef enum {
-    SAVINGS=0,
-    CURRENT=1
+typedef enum
+{
+    SAVINGS = 0,
+    CURRENT = 1
 } Account_type;
 
-typedef struct{
+typedef struct
+{
     unsigned long long account_no;
     char name;
     unsigned int age;
@@ -27,31 +30,32 @@ typedef struct{
     Account_type type;
 } Account;
 
-
-void mysql_query_excuter(const char *, const char *);   //function prototype for connection
-
+void mysql_query_excuter(const char *, const char *); // function prototype for connection
 
 int user_menu();
 
-
-void mysql_query_excuter(const char *query ,const char *databases ) {
+void mysql_query_excuter(const char *query, const char *databases)
+{
     MYSQL *conn = mysql_init(NULL);
 
     // Check initialization
-    if (conn == NULL) {
+    if (conn == NULL)
+    {
         printf("mysql_init failed\n");
         return;
     }
 
     // Connect to server
-    if (!mysql_real_connect(conn, "localhost", USER, PASSWD,databases, 0, NULL, 0)) {
+    if (!mysql_real_connect(conn, "localhost", USER, PASSWD, databases, 0, NULL, 0))
+    {
         printf("Connection failed: %s\n", mysql_error(conn));
         mysql_close(conn);
         return;
     }
 
     // Execute query
-    if (mysql_query(conn, query)) {
+    if (mysql_query(conn, query))
+    {
         printf("Query execution failed: %s\n", mysql_error(conn));
         mysql_close(conn);
         return;
@@ -62,20 +66,21 @@ void mysql_query_excuter(const char *query ,const char *databases ) {
 
 int main(int argc, char const *argv[])
 {
-    
+    user_menu();
     return 0;
 }
 
 Account acc;
-int user_menu() {
+int user_menu()
+{
     printf("Write down your name.");
-    scanf("%c",acc.name);
+    scanf("%s", acc.name);
     printf("Write down your age.");
-    scanf("%d",acc.age);
+    scanf("%d", acc.age);
     printf("Write down your Date of Birth(YYYY-MM-DD).");
-    scanf("%10s",acc.date_of_birth);
+    scanf("%10s", acc.date_of_birth);
     printf("Write down your Gender(Male=0,Female=1,Other=Any Number).");
-    scanf("%d",acc.gender);
+    scanf("%d", acc.gender);
     Gender g;
     switch (g)
     {
@@ -87,15 +92,15 @@ int user_menu() {
         return "Other";
     }
     printf("Write down your Aadhar Number.");
-    scanf("%s",acc.aadhar_no);
+    scanf("%s", acc.aadhar_no);
     printf("Write down your Pan Number.");
-    scanf("%s",acc.pan_no);
+    scanf("%s", acc.pan_no);
     printf("Write down your Phone Number.");
-    scanf("%s",acc.phone);
+    scanf("%s", acc.phone);
     printf("Write down your age.");
-    scanf("%s",acc.email);
+    scanf("%s", acc.email);
     printf("Write down your Type of Account(Savings=0,Current=1).");
-    scanf("%s",acc.type);
+    scanf("%s", acc.type);
     Account_type t;
     switch (t)
     {
@@ -106,6 +111,25 @@ int user_menu() {
     default:
         return "Savings";
     }
+
+    char query[1024];
+
+    sprintf(query,
+            "INSERT INTO your_table_name (account_no, name, age, gender, date_of_birth, Aadhar_no, Pan_no, phone, email, balance, account_type, created_at, updated_at) "
+            "VALUES (0000000000, '%s', %u, %d, '%s', '%s', '%s', '%s', '%s', %llu, %d, NOW(), NOW());",
+            acc.account_no,
+            acc.name,
+            acc.age,
+            acc.gender,
+            acc.date_of_birth,
+            acc.aadhar_no,
+            acc.pan_no,
+            acc.phone,
+            acc.email,
+            acc.balance,
+            acc.type);
+
+    mysql_query_excuter(query, "account_information");
 
     return 0;
 }
