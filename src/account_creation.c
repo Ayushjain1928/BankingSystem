@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <mysql/mysql.h>
 
-#define PASSWD "PiyushBisht8275@"
+#define PASSWD "Mydatabases@123"
 #define USER "root"
 
 
