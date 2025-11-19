@@ -117,6 +117,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
 
 #define PASSWD "PiyushBisht8275@"
 #define USER "root"
@@ -213,6 +214,8 @@ int user_menu()
 
     printf("Enter the date of birth (yyyy-mm-dd): ");
 
+    printf("Enter the date of birth (yyyy-mm-dd): ");
+
     while (1)
     {
         fgets(acc.date_of_birth, sizeof(acc.date_of_birth), stdin);
@@ -220,16 +223,42 @@ int user_menu()
 
         int year, month, day;
 
-        if (sscanf(acc.date_of_birth, "%4d-%2d-%2d", &year, &month, &day) == 3) // check format yyyy-mm-dd
+        // Check correct format
+        if (sscanf(acc.date_of_birth, "%4d-%2d-%2d", &year, &month, &day) == 3)
         {
-
-            // basic range checks
+            // Basic logical checks
             if (year >= 1900 && year <= 2025 &&
                 month >= 1 && month <= 12 &&
                 day >= 1 && day <= 31)
             {
-                // VALID
-                break;
+                // -------------------------
+                //   CHECK AGE >= 18
+                // -------------------------
+                time_t t = time(NULL);
+                struct tm *now = localtime(&t);
+
+                int curr_year  = now->tm_year + 1900;
+                int curr_month = now->tm_mon + 1;
+                int curr_day   = now->tm_mday;
+
+                int age = curr_year - year;
+
+                // If birthday not reached yet
+                if (curr_month < month ||
+                   (curr_month == month && curr_day < day))
+                {
+                    age--;
+                }
+
+                if (age >= 18)
+                {
+                    break;
+                }
+                else
+                {
+                    printf("You must be at least 18 years old! Enter again: ");
+                    continue;
+                }
             }
         }
 
