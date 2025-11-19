@@ -162,6 +162,11 @@ int user_menu()
         printf("Invalid format! Enter again (yyyy-mm-dd): ");
     }
 
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) // remove buffer
+    {
+    }
+
     // ---------------------- aadhar no ----------------------
     printf("Enter the aadhar Number :");
     fgets(acc.aadhar_no, sizeof(acc.aadhar_no), stdin);
