@@ -7,21 +7,20 @@
 #include <time.h>
 #include <regex.h>
 
-#define PASSWD "PiyushBisht8275@"
+#define PASSWD "Mydatabases@123"
 #define USER "root"
 
 typedef struct
 {
     unsigned long long account_no;
     char name[20];
-    unsigned int age;
     char gender[10];
     char date_of_birth[11];
     char aadhar_no[18];
     char pan_no[18];
     char phone[15];
     char email[20];
-    unsigned long long balance;
+    long double balance;
     char account_type[10];
     char password[10];
 } Account;
@@ -95,6 +94,24 @@ int main(int argc, char const *argv[])
 Account acc;
 int user_menu()
 {
+    mysql_query_excuter("create database if not exists accounts", NULL);
+    mysql_query_excuter(
+        "CREATE TABLE IF NOT EXISTS account_information ("
+        "account_no BIGINT PRIMARY KEY,"
+        "name VARCHAR(100) NOT NULL,"
+        "gender ENUM('Male', 'Female', 'Other') NOT NULL,"
+        "date_of_birth DATE NOT NULL,"
+        "Aadhar_no VARCHAR(20) UNIQUE NOT NULL,"
+        "Pan_no VARCHAR(20) UNIQUE NOT NULL,"
+        "phone VARCHAR(15) NOT NULL,"
+        "email VARCHAR(100),"
+        "balance DECIMAL(30,2) NOT NULL DEFAULT 0.00,"
+        "account_type ENUM('Savings','Current') DEFAULT 'Savings',"
+        "password_hash VARCHAR(10) NOT NULL,"
+        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+        "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+        ")",
+        "accounts");
     printf("\n\n-----------------Registration Starts!---------------------\n\n");
     // ---------------------- account no ----------------------
     srand(time(NULL));
@@ -260,14 +277,15 @@ int user_menu()
     }
     // ---------------------- email ---------------------------
     regex_t r;
-    const char *pat = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" ;
+    const char *pat = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     while (1)
     {
         printf("Enter email: ");
         fgets(acc.email, sizeof(acc.email), stdin);
         acc.email[strcspn(acc.email, "\n")] = 0;
         regcomp(&r, pat, REG_EXTENDED);
-        if (regexec(&r, acc.email, 0, NULL, 0) == 0) break;
+        if (regexec(&r, acc.email, 0, NULL, 0) == 0)
+            break;
         printf("Invalid Email ! Try again\n");
     }
     regfree(&r);
@@ -319,4 +337,25 @@ int user_menu()
     }
     showInput();
     printf("\n\n-----------------Registration complete!---------------------\n");
+    char query[1000];
+
+    snprintf(query, sizeof(query),
+             "INSERT INTO account_information ("
+             "account_no, name, gender, date_of_birth, Aadhar_no, Pan_no, phone, email, "
+             "balance, account_type, password_hash"
+             ") VALUES ("
+             "%llu, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %.2Lf, '%s', '%s'"
+             ");",
+             acc.account_no,
+             acc.name,
+             acc.gender,
+             acc.date_of_birth,
+             acc.aadhar_no,
+             acc.pan_no,
+             acc.phone,
+             acc.email,
+             acc.balance, // long double → %.2Lf
+             acc.account_type,
+             acc.password);
+    mysql_query_excuter(query,"accounts");
 }
