@@ -204,7 +204,32 @@ int user_menu()
             break;
         }
         printf("Invalid PAN! Try again.\n");
-    }   
+    }
+    // ---------------------- phone no ----------------------
+    while (1)
+    {
+        printf("Enter your Phone Number: ");
+        fgets(acc.phone, sizeof(acc.phone), stdin);
+        acc.phone[strcspn(acc.phone, "\n")] = 0;
 
+        int ok = 1;
+        if (strlen(acc.phone) == 10)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                if (!isdigit(acc.phone[i]))
+                {
+                    ok = 0;
+                    break;
+                }
+            }
 
+            if (ok)
+            {
+                break;
+            }
+        }
+
+        printf("Invalid Phone Number! Try again.\n");
+    }
 }
