@@ -25,6 +25,14 @@ typedef struct
     char account_type[10];
 } Account;
 
+void buffer();
+void buffer(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) // remove buffer
+    {
+    }
+}
+
 void mysql_query_excuter(const char *, const char *); // function prototype for connection
 
 int user_menu();
@@ -162,10 +170,7 @@ int user_menu()
         printf("Invalid format! Enter again (yyyy-mm-dd): ");
     }
 
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) // remove buffer
-    {
-    }
+    buffer();
 
     // ---------------------- aadhar no ----------------------
     while (1)
@@ -232,4 +237,5 @@ int user_menu()
 
         printf("Invalid Phone Number! Try again.\n");
     }
+    
 }
