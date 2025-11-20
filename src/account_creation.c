@@ -25,7 +25,12 @@ typedef struct
     char password[10];
 } Account;
 
-void buffer();
+void buffer();void mysql_query_excuter(const char *, const char *); // function prototype for connection
+void hideInput();
+void showInput();
+int user_menu();
+
+
 void buffer()
 {
     int c;
@@ -33,8 +38,7 @@ void buffer()
     {
     }
 }
-void hideInput();
-void showInput();
+
 void hideInput()
 {
     struct termios tty;
@@ -51,9 +55,7 @@ void showInput()
     tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 }
 
-void mysql_query_excuter(const char *, const char *); // function prototype for connection
 
-int user_menu();
 
 void mysql_query_excuter(const char *query, const char *databases)
 {
@@ -292,14 +294,27 @@ int user_menu()
     // ---------------------- ACCOUNT TYPE ----------------------
     char typeS[10];
 
-    printf("Choose the type of Account: ");
-    fgets(typeS, sizeof(typeS), stdin);
-    typeS[strcspn(typeS, "\n")] = '\0';
-    for (int i = 0; typeS[i]; i++)
-    {
-        typeS[i] = tolower(typeS[i]);
+    const char* partten = "^[a-zA-Z]+$";
+    while(1)
+    {   
+        printf("Choose the type of Account: ");
+        fgets(typeS, sizeof(typeS), stdin);
+        typeS[strcspn(typeS, "\n")] = '\0';
+        regcomp(&tt,partten,REG_EXTENDED);
+        if (regexec(&tt,typeS,0,NULL,0) == 0)
+        {
+            break;
+        }
+        printf("invaid input\n");
+        
     }
-    typeS[0] = toupper(typeS[0]);
+    regfree(&tt);
+    
+        for (int i = 0; typeS[i]; i++)
+        {
+            typeS[i] = tolower(typeS[i]);
+        }
+        typeS[0] = toupper(typeS[0]);
     if (strcmp(typeS, "Savings") == 0)
     {
         strcpy(acc.account_type, "Savings");
