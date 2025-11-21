@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include <regex.h>
+#include "account_creation.h"
 
 #define PASSWD "PiyushBisht2222@"
 #define USER "root"
