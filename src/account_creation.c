@@ -7,7 +7,7 @@
 #include <time.h>
 #include <regex.h>
 
-#define PASSWD "Mydatabases@123"
+#define PASSWD "PiyushBisht2222@"
 #define USER "root"
 
 typedef struct
@@ -85,11 +85,11 @@ void mysql_query_excuter(const char *query, const char *databases)
     mysql_close(conn);
 }
 
-int main()
-{
-    user_menu();
-    return 0;
-}
+// int main()
+// {
+//     user_menu();
+//     return 0;
+// }
 
 Account acc;
 int user_menu()
