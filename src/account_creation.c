@@ -25,11 +25,11 @@ typedef struct
     char password[10];
 } Account;
 
-void buffer();void mysql_query_excuter(const char *, const char *); // function prototype for connection
+void buffer();
+void mysql_query_excuter(const char *, const char *); // function prototype for connection
 void hideInput();
 void showInput();
 int user_menu();
-
 
 void buffer()
 {
@@ -54,8 +54,6 @@ void showInput()
     tty.c_lflag |= ECHO;
     tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 }
-
-
 
 void mysql_query_excuter(const char *query, const char *databases)
 {
@@ -87,7 +85,7 @@ void mysql_query_excuter(const char *query, const char *databases)
     mysql_close(conn);
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
     user_menu();
     return 0;
@@ -109,7 +107,7 @@ int user_menu()
         "email VARCHAR(100),"
         "balance DECIMAL(30,2) NOT NULL DEFAULT 0.00,"
         "account_type ENUM('Savings','Current') DEFAULT 'Savings',"
-        "password_hash VARCHAR(10) NOT NULL,"
+        "password_hash VARCHAR(100) NOT NULL,"
         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
         ")",
@@ -133,10 +131,22 @@ int user_menu()
 
     // ---------------------- GENDER ----------------------
     char genderS[10];
+    regex_t rre;
+    const char *parrrtern = "^[a-zA-Z]+$";
+    while (1)
+    {
 
-    printf("Enter your Gender: ");
-    fgets(genderS, sizeof(genderS), stdin);
-    genderS[strcspn(genderS, "\n")] = '\0';
+        printf("Enter your Gender: ");
+        fgets(genderS, sizeof(genderS), stdin);
+        genderS[strcspn(genderS, "\n")] = '\0';
+        regcomp(&rre, parrrtern, REG_EXTENDED);
+        if (regexec(&rre, genderS, 0, NULL, 0) == 0)
+        {
+            break;
+        }
+        printf("invalid input\n");
+    }
+
     for (int i = 0; genderS[i]; i++)
     {
         genderS[i] = tolower(genderS[i]);
@@ -154,6 +164,7 @@ int user_menu()
     {
         strcpy(acc.gender, "Other");
     }
+    regfree(&rre);
     // printf("%s",acc.gender);
 
     // ---------------------- DATE OF BIRTH ----------------------
@@ -294,27 +305,26 @@ int user_menu()
     // ---------------------- ACCOUNT TYPE ----------------------
     char typeS[10];
 
-    const char* partten = "^[a-zA-Z]+$";
-    while(1)
-    {   
+    const char *partten = "^[a-zA-Z]+$";
+    while (1)
+    {
         printf("Choose the type of Account: ");
         fgets(typeS, sizeof(typeS), stdin);
         typeS[strcspn(typeS, "\n")] = '\0';
-        regcomp(&tt,partten,REG_EXTENDED);
-        if (regexec(&tt,typeS,0,NULL,0) == 0)
+        regcomp(&tt, partten, REG_EXTENDED);
+        if (regexec(&tt, typeS, 0, NULL, 0) == 0)
         {
             break;
         }
         printf("invaid input\n");
-        
     }
     regfree(&tt);
-    
-        for (int i = 0; typeS[i]; i++)
-        {
-            typeS[i] = tolower(typeS[i]);
-        }
-        typeS[0] = toupper(typeS[0]);
+
+    for (int i = 0; typeS[i]; i++)
+    {
+        typeS[i] = tolower(typeS[i]);
+    }
+    typeS[0] = toupper(typeS[0]);
     if (strcmp(typeS, "Savings") == 0)
     {
         strcpy(acc.account_type, "Savings");
@@ -372,5 +382,5 @@ int user_menu()
              acc.balance, // long double → %.2Lf
              acc.account_type,
              acc.password);
-    mysql_query_excuter(query,"accounts");
+    mysql_query_excuter(query, "accounts");
 }
