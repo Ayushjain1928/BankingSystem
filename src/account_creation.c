@@ -9,6 +9,8 @@
 
 #define PASSWD "Mydatabases@123"
 #define USER "root"
+#define MAX_ROWS 100
+#define MAX_LENGTH 100
 
 typedef struct
 {
@@ -26,7 +28,11 @@ typedef struct
 } Account;
 
 void buffer();
-void mysql_query_excuter(const char *, const char *); // function prototype for connection
+void mysql_query_excuter(const char *query,
+                         const char *database,
+                         int permission,
+                         char* data[MAX_ROWS][20][MAX_LENGTH],
+                         int* rows_out); // function prototype for connection
 void hideInput();
 void showInput();
 int user_menu();
@@ -55,9 +61,17 @@ void showInput()
     tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 }
 
-void mysql_query_excuter(const char *query, const char *databases)
+void mysql_query_excuter(const char *query,
+                         const char *database,
+                         int permission,
+                         char* data[MAX_ROWS][20][MAX_LENGTH],
+                         int* rows_out)
 {
     MYSQL *conn = mysql_init(NULL);
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    char data[MAX_ROWS][20][MAX_LENGTH]; // 20 = max possible columns
+    int row_count = 0;
 
     // Check initialization
     if (conn == NULL)
@@ -67,7 +81,7 @@ void mysql_query_excuter(const char *query, const char *databases)
     }
 
     // Connect to server
-    if (!mysql_real_connect(conn, "localhost", USER, PASSWD, databases, 0, NULL, 0))
+    if (!mysql_real_connect(conn, "localhost", USER, PASSWD, database, 0, NULL, 0))
     {
         printf("Connection failed: %s\n", mysql_error(conn));
         mysql_close(conn);
@@ -81,20 +95,56 @@ void mysql_query_excuter(const char *query, const char *databases)
         mysql_close(conn);
         return;
     }
-    
-    mysql_close(conn);
+    if (permission == 0)
+    {
+        mysql_close(conn);
+    }
+    else
+    {
+        // Data fetcher
+        res = mysql_store_result(conn);
+        int num_cols = mysql_num_fields(res); // <- detects number of selected columns
+        int no_of_rows = mysql_num_rows(res);
+        printf("Columns returned: %d\n\n", num_cols);
+        printf("rows returned: %d\n\n", no_of_rows);
+
+        while ((row = mysql_fetch_row(res)) && row_count < MAX_ROWS)
+        {
+
+            for (int col = 0; col < num_cols; col++)
+            {
+                if (row[col])
+                    strncpy(data[row_count][col], row[col], MAX_LENGTH - 1);
+                else
+                    strcpy(data[row_count][col], "NULL");
+
+                data[row_count][col][MAX_LENGTH - 1] = '\0';
+            }
+
+            row_count++;
+        }
+
+        mysql_free_result(res);
+        mysql_close(conn);
+
+        
+    }
 }
 
-// int main()
-// {
-//     user_menu();
-//     return 0;
-// }
+int main()
+{
+    // user_menu();
+    char dataa[MAX_ROWS][20][MAX_LENGTH];
+    int no_of_row;
+    mysql_query_excuter("select * from account_information","accounts",1,&dataa,&no_of_row);
+    printf("%s",dataa[0][0]);
+    return 0;
+}
 
 Account acc;
 int user_menu()
 {
-    mysql_query_excuter("create database if not exists accounts", NULL);
+    mysql_query_excuter("create database if not exists accounts", NULL, 0 , NULL , 0 );
     mysql_query_excuter(
         "CREATE TABLE IF NOT EXISTS account_information ("
         "account_no BIGINT PRIMARY KEY,"
@@ -111,7 +161,7 @@ int user_menu()
         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
         ")",
-        "accounts");
+        "accounts", 0 , NULL , 0);
     printf("\n\n-----------------Registration Starts!---------------------\n\n");
     // ---------------------- account no ----------------------
     srand(time(NULL));
@@ -384,5 +434,5 @@ int user_menu()
              acc.balance, // long double → %.2Lf
              acc.account_type,
              acc.password);
-    mysql_query_excuter(query, "accounts");
+    mysql_query_excuter(query, "accounts", 0 , NULL , 0);
 }
