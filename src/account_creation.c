@@ -164,10 +164,17 @@ int user_menu()
         "accounts", 0 , NULL , 0);
     printf("\n\n-----------------Registration Starts!---------------------\n\n");
     // ---------------------- account no ----------------------
-    srand(time(NULL));
+        srand(time(NULL));
+
     char n[13];
-    for (int i = 0; i < 12; i++)
+
+    // First digit must be 1–9
+    n[0] = '1' + rand() % 9;
+
+    // Remaining digits can be 0–9
+    for (int i = 1; i < 12; i++)
         n[i] = '0' + rand() % 10;
+
     n[12] = '\0';
     acc.account_no = strtoull(n, NULL, 10); // here 10 means base decimal of 10
 

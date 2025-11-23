@@ -12,12 +12,14 @@ char value[MAX_ROWS][20][MAX_LENGTH];
 int no_of_rows;
 regex_t regex_value; // Globle variable
 const char *pattern;
+int main_menu_continue;
 
 int main()
 {
     // mysql_query_excuter("select * from account_information","accounts",1,value,&no_of_rows);
 
     int option;
+    int exit__;
     char account_number_input[20];
     char account_passwd_input[10];
 
@@ -128,13 +130,16 @@ int main()
                 mysql_query_excuter(Query, "accounts", 1, value, &no_of_rows);
                 mysql_ValuePrinter();
                 mysql_ValueChanger(account_number_input);
-                printf("\n\n\n Done \n\n\n");
+                
                 break;
             }
+        if (main_menu_continue == 0) continue;
 
-        default:
+        case 3:
+            exit__ = 1;
             break;
         }
+        if (exit__ == 1) break;
     }
     return 0;
 }
@@ -146,6 +151,7 @@ void mysql_ValuePrinter()
     printf("2) Phone Number   : %s\n", value[0][6]);
     printf("3) Holder Email   : %s\n", value[0][7]);
     printf("4) Holder passwd  : %s\n", "******");
+    printf("---Holder Balance  : %s\n", value[0][8]);
     printf("\n\n");
 }
 void mysql_ValueChanger(const char *accNO)
@@ -172,9 +178,8 @@ void mysql_ValueChanger(const char *accNO)
         "^[0-9]*$"         // balance
     };
 
-
     // First menu: A / B / X
-    pattern = "^[ABXabx]{1}$";
+    pattern = "^[ABCXabcx]{1}$";
     regcomp(&regex_value, pattern, REG_EXTENDED);
 
     char input_For_Changes[5];
@@ -183,6 +188,7 @@ void mysql_ValueChanger(const char *accNO)
     {
         printf("A: For making changes in data \n");
         printf("B: For add money in Account \n");
+        printf("C: For withdrowl money in Account \n");
         printf("X: For Exit to main menu \n\n");
         printf(": ");
 
@@ -248,42 +254,78 @@ void mysql_ValueChanger(const char *accNO)
     }
     if (strcmp(input_For_Changes, "B") == 0)
     {
+        char ii[50];
+
         while (1)
         {
-            printf("Enter the add %s: ", Display_Array[5]);
-            fgets(Input_Input, sizeof(Input_Input), stdin);
-            Input_Input[strcspn(Input_Input, "\n")] = '\0';
-            if (!regex_appler(Regex_Array[5], Input_Input))
+            printf("Enter the add %s: ", Display_Array[4]);
+            fgets(ii, sizeof(ii), stdin);
+            ii[strcspn(ii, "\n")] = '\0';
+            if (!regex_appler(Regex_Array[4], ii))
             {
                 printf("Invalid format\n");
                 continue;
             }
             break;
         }
-        char QUery[256];
-        snprintf(QUery, sizeof(QUery),
-                 "UPDATE account_information SET balance = '%s' WHERE account_no = %s",
-                  Input_Input, accNO);
-        mysql_query_excuter(QUery, "accounts", 0, NULL, 0);
-    }
+        char QUEry[256];
+        unsigned long long new_balance;
 
+        new_balance = strtoull(value[0][8], NULL, 10) + strtoull(ii, NULL, 10);
+
+        char buffer[50];
+        snprintf(buffer, sizeof(buffer), "%llu", new_balance);
+        snprintf(QUEry, sizeof(QUEry),
+                 "UPDATE account_information SET balance = '%llu' WHERE account_no = %s",
+                 new_balance, accNO);
+        mysql_query_excuter(QUEry, "accounts", 0, NULL, 0);
+    }
+    if (strcmp(input_For_Changes, "C") == 0)
+    {
+        char ii[50];
+
+        while (1)
+        {
+            printf("Enter the withdraw amount from %s: ", Display_Array[4]);
+            fgets(ii, sizeof(ii), stdin);
+            ii[strcspn(ii, "\n")] = '\0';
+            if (!regex_appler(Regex_Array[4], ii))
+            {
+                printf("Invalid format\n");
+                continue;
+            }
+            break;
+        }
+        char QUEry[256];
+        unsigned long long new_balance;
+
+        new_balance = strtoull(value[0][8], NULL, 10) - strtoull(ii, NULL, 10);
+
+        char buffer[50];
+        snprintf(buffer, sizeof(buffer), "%llu", new_balance);
+        snprintf(QUEry, sizeof(QUEry),
+                 "UPDATE account_information SET balance = '%llu' WHERE account_no = %s",
+                 new_balance, accNO);
+        mysql_query_excuter(QUEry, "accounts", 0, NULL, 0);
+    } 
+    if (strcmp(input_For_Changes, "C") == 0) main_menu_continue = 1;
     regfree(&regex_value);
 }
 
 int regex_appler(const char *pattern, const char *input)
 {
-    regex_t regex;
+
     int ret;
 
-    ret = regcomp(&regex, pattern, REG_EXTENDED);
+    ret = regcomp(&regex_value, pattern, REG_EXTENDED);
     if (ret != 0)
     {
-        regfree(&regex);
+        regfree(&regex_value);
         return 0;
     }
 
-    ret = regexec(&regex, input, 0, NULL, 0);
-    regfree(&regex);
+    ret = regexec(&regex_value, input, 0, NULL, 0);
+    regfree(&regex_value);
 
     return (ret == 0); // 1 = valid, 0 = invalid
 }
