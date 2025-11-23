@@ -7,7 +7,7 @@
 #include <time.h>
 #include <regex.h>
 
-#define PASSWD "PiyushBisht2222@"
+#define PASSWD "Mydatabases@123"
 #define USER "root"
 #define MAX_ROWS 100
 #define MAX_LENGTH 100
@@ -158,7 +158,8 @@ int user_menu()
         "account_type ENUM('Savings','Current') DEFAULT 'Savings',"
         "password_hash VARCHAR(100) NOT NULL,"
         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-        "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+        "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
+        "no_of_user INT NOT NULL AUTO_INCREMENT UNIQUE"
         ")",
         "accounts", 0 , NULL , 0);
     printf("\n\n-----------------Registration Starts!---------------------\n\n");

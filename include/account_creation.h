@@ -8,4 +8,5 @@ void mysql_query_excuter(const char *query,
                          int permission,
                          char data[MAX_ROWS][20][MAX_LENGTH],
                          int* rows_out);
+void buffer();
 #endif
