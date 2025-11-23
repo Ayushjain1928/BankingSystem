@@ -2,11 +2,12 @@
 #include <regex.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "account_creation.h"
 
 void mysql_ValuePrinter();
-void mysql_ValueChanger(char ); // function prototype
-
+void mysql_ValueChanger(const char *accNO);
+int regex_appler(const char *pattern, const char *input);
 char value[MAX_ROWS][20][MAX_LENGTH];
 int no_of_rows;
 regex_t regex_value; // Globle variable
@@ -121,6 +122,7 @@ int main()
                     }
                     break;
                 }
+
                 char Query[100];
                 snprintf(Query, sizeof(Query), "select * from account_information where account_no = %s", account_number_input);
                 mysql_query_excuter(Query, "accounts", 1, value, &no_of_rows);
@@ -146,65 +148,142 @@ void mysql_ValuePrinter()
     printf("4) Holder passwd  : %s\n", "******");
     printf("\n\n");
 }
-void mysql_ValueChanger(char accNO)
+void mysql_ValueChanger(const char *accNO)
 {
-    char Header_Array[5][20] = {
+    const char *Header_Array[5] = {
         "name",
         "phone",
         "email",
         "password_hash",
         "balance"};
-    char Display_Array[5][20] = {
+
+    const char *Display_Array[5] = {
         "Account Holder",
         "Phone Number",
         "Holder Email",
         "Holder passwd",
         "balance"};
-    pattern = "^[ABX]{1}$";
+
+    const char *Regex_Array[5] = {
+        "^[A-Za-z]+(\\s[A-Za-z]+)*$", // name
+        "^[0-9]{10}$",                // phone
+        "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+        "^[a-zA-Z0-9_]+$", // password
+        "^[0-9]*$"         // balance
+    };
+
+
+    // First menu: A / B / X
+    pattern = "^[ABXabx]{1}$";
     regcomp(&regex_value, pattern, REG_EXTENDED);
+
     char input_For_Changes[5];
+
     while (1)
     {
         printf("A: For making changes in data \n");
         printf("B: For add money in Account \n");
         printf("X: For Exit to main menu \n\n");
-        printf(":");
+        printf(": ");
+
         fgets(input_For_Changes, sizeof(input_For_Changes), stdin);
         input_For_Changes[strcspn(input_For_Changes, "\n")] = '\0';
+
         if (regexec(&regex_value, input_For_Changes, 0, NULL, 0) == 0)
-        {
             break;
-        }
-        printf("\n");
+
+        printf("Invalid choice!\n\n");
     }
-    pattern = "^[1-4]{1}$";
-    regcomp(&regex_value, pattern, REG_EXTENDED);
-    char Number_input[10];
+    char Input_Input[50];
+
+    input_For_Changes[0] = toupper(input_For_Changes[0]);
+    // Only for option A we go inside
     if (strcmp(input_For_Changes, "A") == 0)
     {
+        // Ask which field (1–4)
+        pattern = "^[1-4]{1}$";
+        regcomp(&regex_value, pattern, REG_EXTENDED);
+
+        char Number_input[10];
+
         while (1)
         {
             printf("Enter the number corresponding to your desired change (1-4): ");
             fgets(Number_input, sizeof(Number_input), stdin);
-
             Number_input[strcspn(Number_input, "\n")] = '\0';
 
             if (regexec(&regex_value, Number_input, 0, NULL, 0) == 0)
-            {
                 break;
-            }
-            else
-            {
-                printf("Invalid input! Please enter only ONE digit (1-4).\n");
-            }
+
+            printf("Invalid input! Please enter only ONE digit (1-4).\n");
         }
-        // char Input_Input[50];
-        // char mysql_database_key_value[50] = Header_Array[strtoul(Number_input,NULL,10)];
-        // printf("Enter the new %s :", Display_Array[strtoul(Number_input, NULL, 10)]);
-        // fgets(Input_Input, sizeof(Input_Input), stdin); // for name
-        // Input_Input[strcspn(Input_Input, "\n")] = 0;
-        // char QUery[100];
-        // snprintf(QUery,sizeof(QUery),"UPDATE accounts SET %s = '%s' WHERE account_no = %s",mysql_database_key_value,);
-        // mysql_query_excuter();
+
+        regfree(&regex_value);
+
+        int temp_value = (int)strtoul(Number_input, NULL, 10) - 1;
+
+        const char *mysql_database_key_value = Header_Array[temp_value];
+        const char *regex_pattern = Regex_Array[temp_value];
+
+        while (1)
+        {
+            printf("Enter the new %s: ", Display_Array[temp_value]);
+            fgets(Input_Input, sizeof(Input_Input), stdin);
+            Input_Input[strcspn(Input_Input, "\n")] = '\0';
+
+            if (!regex_appler(regex_pattern, Input_Input))
+            {
+                printf("Invalid format\n");
+                continue;
+            }
+            break;
+        }
+
+        char QUery[256];
+        snprintf(QUery, sizeof(QUery),
+                 "UPDATE account_information SET %s = '%s' WHERE account_no = %s",
+                 mysql_database_key_value, Input_Input, accNO);
+
+        mysql_query_excuter(QUery, "accounts", 0, NULL, 0);
     }
+    if (strcmp(input_For_Changes, "B") == 0)
+    {
+        while (1)
+        {
+            printf("Enter the add %s: ", Display_Array[5]);
+            fgets(Input_Input, sizeof(Input_Input), stdin);
+            Input_Input[strcspn(Input_Input, "\n")] = '\0';
+            if (!regex_appler(Regex_Array[5], Input_Input))
+            {
+                printf("Invalid format\n");
+                continue;
+            }
+            break;
+        }
+        char QUery[256];
+        snprintf(QUery, sizeof(QUery),
+                 "UPDATE account_information SET balance = '%s' WHERE account_no = %s",
+                  Input_Input, accNO);
+        mysql_query_excuter(QUery, "accounts", 0, NULL, 0);
+    }
+
+    regfree(&regex_value);
+}
+
+int regex_appler(const char *pattern, const char *input)
+{
+    regex_t regex;
+    int ret;
+
+    ret = regcomp(&regex, pattern, REG_EXTENDED);
+    if (ret != 0)
+    {
+        regfree(&regex);
+        return 0;
+    }
+
+    ret = regexec(&regex, input, 0, NULL, 0);
+    regfree(&regex);
+
+    return (ret == 0); // 1 = valid, 0 = invalid
 }
