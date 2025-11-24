@@ -3,6 +3,6 @@
 # git add include
 git add .
 git commit -m "Changed by Ayush"
-git push ayush main
-git push piyush main
+git push Ayush main
+git push Piyush main
 clear
