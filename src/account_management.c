@@ -5,11 +5,12 @@
 #include <ctype.h>
 #include "account_creation.h"                   //user defined hearder file 
 
+
 void mysql_ValuePrinter();
 void mysql_ValueChanger(const char *accNO);
-
-
 int regex_appler(const char *pattern, const char *input);
+
+
 char value[MAX_ROWS][20][MAX_LENGTH];
 int no_of_rows = 0;
 regex_t regex_value;                        // Globle variables
